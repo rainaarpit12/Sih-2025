@@ -40,14 +40,20 @@
 		</dependency>
 
 
-		<!-- Web3j -->
-<dependency>
-    <groupId>org.web3j</groupId>
-    <artifactId>core</artifactId>
-    <version>4.9.4</version>
-</dependency>
+		<!-- Web3j for Polygon Blockchain Integration -->
+        <dependency>
+            <groupId>org.web3j</groupId>
+            <artifactId>core</artifactId>
+            <version>4.10.3</version>
+        </dependency>
+		<!-- Web3j Contracts for Smart Contract Interaction -->
+		<dependency>
+			<groupId>org.web3j</groupId>
+			<artifactId>contracts</artifactId>
+			<version>4.10.3</version>
+		</dependency>
 
-<!-- QR Code -->
+		<!-- QR Code Generation -->
 <dependency>
     <groupId>com.google.zxing</groupId>
     <artifactId>core</artifactId>

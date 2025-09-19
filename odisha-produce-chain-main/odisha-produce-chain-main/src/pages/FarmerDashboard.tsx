@@ -5,7 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Leaf, QrCode, Download, Share, LogOut, BarChart3, Cloud, TrendingUp, Calendar, MapPin, Loader2, Award, Info, Menu, X, Home, PieChart, Sprout, ArrowLeft, Lightbulb } from "lucide-react";
+import { Leaf, QrCode, Download, Share, LogOut, BarChart3, Cloud, TrendingUp, Calendar, MapPin, Loader2, Award, Info, Menu, X, Home, PieChart, Sprout, ArrowLeft, Lightbulb, User } from "lucide-react";
+import { useUser } from "@/contexts/UserContext";
+import UserProfile from "@/components/UserProfile";
+import { NetworkStatus } from "@/components/NetworkStatus";
+import QRCodeLib from "qrcode";
 import {
   BarChart,
   Bar,
@@ -140,14 +144,21 @@ const tamilTranslations = {
   season: "பருவம்",
   eligibility: "தகுதி",
   schemeDetails: "திட்ட விவரங்கள்",
-  welcomeMessage: "விவசாயி தளத்திற்கு வரவேற்கிறோம்!"
+  welcomeMessage: "விவசாயி தளத்திற்கு வரவேற்கிறோம்!",
+  profile: "சுயவிவரம்"
 };
 
 const indianStates = [
-  "Tamil Nadu", "Kerala", "Karnataka", "Andhra Pradesh", "Telangana",
-  "Maharashtra", "Gujarat", "Rajasthan", "Punjab", "Haryana",
-  "Uttar Pradesh", "Bihar", "West Bengal", "Odisha", "Madhya Pradesh",
-  "Assam", "Other"
+  // States (28)
+  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", 
+  "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", 
+  "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", 
+  "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", 
+  "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
+  
+  // Union Territories (8)
+  "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", 
+  "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
 ];
 
 const productCategories = [
@@ -285,6 +296,7 @@ interface MarketPrice {
 const FarmerDashboard = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { user, logout } = useUser();
   const [loading, setLoading] = useState(false);
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [productId, setProductId] = useState<string>("");
@@ -307,7 +319,7 @@ const FarmerDashboard = () => {
   ]);
   const [currentLocation, setCurrentLocation] = useState<string>("");
   const [isFormVisible, setIsFormVisible] = useState(true);
-  const [activeSection, setActiveSection] = useState<"dashboard" | "qrGeneration" | "analysis" | "pmSchemes" | "seasonalCrops">("dashboard");
+  const [activeSection, setActiveSection] = useState<"dashboard" | "qrGeneration" | "analysis" | "pmSchemes" | "seasonalCrops" | "profile">("dashboard");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedSeason, setSelectedSeason] = useState<"Kharif" | "Rabi" | "Summer" | "Monsoon" | "Winter">("Kharif");
   const [selectedScheme, setSelectedScheme] = useState<typeof governmentSchemes[0] | null>(null);
@@ -533,12 +545,68 @@ const FarmerDashboard = () => {
       }
     } catch (error) {
       console.error("Registration error:", error);
-      toast({
-        title: language === "tamil" ? tamilTranslations.registrationFailed : "Registration Failed",
-        description: error instanceof Error ? error.message : String(error),
-        variant: "destructive"
-      });
-      setIsFormVisible(true);
+      
+      // Fallback: Generate QR code locally when backend is not available
+      try {
+        console.log("Backend failed, generating QR code locally...");
+        
+        // Generate a unique product ID if not provided
+        const fallbackProductId = productData.productId || `PROD_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
+        // Create product data for QR code
+        const qrData = {
+          productId: fallbackProductId,
+          productName: productData.productName,
+          category: productData.category,
+          dateOfManufacture: productData.dateOfManufacture,
+          time: productData.time,
+          place: productData.place,
+          qualityRating: productData.qualityRating,
+          priceForFarmer: productData.priceForFarmer,
+          description: productData.description,
+          state: productData.state,
+          timestamp: new Date().toISOString(),
+          source: "offline_generation"
+        };
+        
+        // Generate QR code as data URL
+        const qrCodeDataUrl = await QRCodeLib.toDataURL(JSON.stringify(qrData), {
+          width: 200,
+          margin: 2,
+          color: {
+            dark: '#000000',
+            light: '#FFFFFF'
+          }
+        });
+        
+        setQrCode(qrCodeDataUrl);
+        setProductId(fallbackProductId);
+        
+        toast({
+          title: language === "tamil" ? "ऑफ़लाइन मोड में पंजीकृत!" : "Registered in Offline Mode!",
+          description: language === "tamil"
+            ? `उत्पाद ${fallbackProductId} स्थानीय रूप से जेनरेट किया गया।`
+            : `Product ${fallbackProductId} generated locally. Backend unavailable.`,
+        });
+
+        setRegistrationStats(prev => ({
+          daily: prev.daily + 1,
+          weekly: prev.weekly + 1,
+          monthly: prev.monthly + 1,
+          total: prev.total + 1
+        }));
+
+        setTimeout(() => setIsFormVisible(true), 500);
+        
+      } catch (qrError) {
+        console.error("QR generation error:", qrError);
+        toast({
+          title: language === "tamil" ? tamilTranslations.registrationFailed : "Registration Failed",
+          description: "Both backend and local QR generation failed. Please try again later.",
+          variant: "destructive"
+        });
+        setIsFormVisible(true);
+      }
     } finally {
       setLoading(false);
     }
@@ -790,6 +858,7 @@ const FarmerDashboard = () => {
           <nav className={`${isMobileMenuOpen ? 'block' : 'hidden'} lg:block`}>
             <div className="flex flex-col lg:flex-row gap-2 lg:gap-4">
               <NavItem section="dashboard" icon={Home} label="Dashboard" tamilLabel="டாஷ்போர்டு" />
+              <NavItem section="profile" icon={User} label="Profile" tamilLabel="சுயவிவரம்" />
               <NavItem section="qrGeneration" icon={QrCode} label="QR Generation" tamilLabel="QR உருவாக்கம்" />
               <NavItem section="analysis" icon={PieChart} label="Analysis" tamilLabel="பகுப்பாய்வு" />
               <NavItem section="pmSchemes" icon={Award} label="PM Schemes" tamilLabel="PM திட்டங்கள்" />
@@ -806,6 +875,11 @@ const FarmerDashboard = () => {
       </header>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Network Status */}
+        <div className="mb-6">
+          <NetworkStatus />
+        </div>
+        
         {/* Motivational Header */}
         <div className="mb-8 text-center animate-fadeInUp">
           <h1 className="text-5xl font-bold gradient-text mb-4">
@@ -1171,6 +1245,17 @@ const FarmerDashboard = () => {
                 </Card>
               ))
             )}
+          </div>
+        )}
+
+        {/* Profile Section */}
+        {activeSection === "profile" && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-gray-800 mb-4">{t('profile')}</h2>
+              <p className="text-gray-600">{language === "tamil" ? "உங்கள் பதிவு விவரங்கள் மற்றும் சுயவிவரத்தைக் காண்க" : "View your registration details and profile information"}</p>
+            </div>
+            <UserProfile />
           </div>
         )}
 

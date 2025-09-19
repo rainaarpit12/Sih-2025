@@ -6,12 +6,14 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Leaf, User, Store, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useUser, demoUsers } from "@/contexts/UserContext";
 
 
 
 
 const Login = () => {
   const navigate = useNavigate();
+  const { setUser } = useUser();
   const [selectedRole, setSelectedRole] = useState<string>("farmer");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,6 +27,14 @@ const Login = () => {
       description: "Register products and manage your farm's supply chain",
       color: "farmer",
       route: "/farmer-dashboard"
+    },
+    {
+      id: "distributor",
+      name: "Distributor",
+      icon: User,
+      description: "Manage distribution network and track shipments",
+      color: "distributor",
+      route: "/distributor-dashboard"
     },
     {
       id: "retailer", 
@@ -50,6 +60,10 @@ const Login = () => {
       email: "farmer@gmail.com",
       password: "farmer123"
     },
+    distributor: {
+      email: "distributor@gmail.com",
+      password: "distributor123"
+    },
     retailer: {
       email: "retailer@gmail.com",
       password: "retailer123"
@@ -60,21 +74,75 @@ const Login = () => {
     }
   };
 
-  const handleLogin = () => {
+  const handleDirectNavigation = (role: string) => {
+    console.log("🔧 DIRECT NAV: Testing direct navigation to", role);
+    const routes = {
+      farmer: "/farmer-dashboard",
+      retailer: "/retailer-dashboard", 
+      distributor: "/distributor-dashboard",
+      customer: "/customer-dashboard"
+    };
+    const route = routes[role as keyof typeof routes];
+    console.log("🔧 DIRECT NAV: Navigating to route:", route);
+    navigate(route);
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
     setError(""); // Reset error
     
-    // Check if credentials match the demo credentials for the selected role
-    const roleCredentials = demoCredentials[selectedRole as keyof typeof demoCredentials];
+    console.log("Login attempt:", { selectedRole, email, password });
     
-    if (email === roleCredentials.email && password === roleCredentials.password) {
-      // For demo purposes, directly navigate to the appropriate dashboard
+    // First check registered users
+    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+    const registeredUser = registeredUsers.find((user: any) => 
+      user.email === email && 
+      user.password === password && 
+      user.profile.role === selectedRole
+    );
+    
+    if (registeredUser) {
+      console.log("Found registered user:", registeredUser);
+      // Use actual registered user data
+      setUser(registeredUser.profile);
+      
+      // Navigate to the appropriate dashboard
       const role = roles.find(r => r.id === selectedRole);
       if (role) {
+        console.log("Navigating to:", role.route);
         navigate(role.route);
       }
+      return;
+    }
+    
+    // Fallback to demo credentials if no registered user found
+    const roleCredentials = demoCredentials[selectedRole as keyof typeof demoCredentials];
+    console.log("Checking demo credentials:", roleCredentials);
+    
+    if (email === roleCredentials.email && password === roleCredentials.password) {
+      console.log("Demo credentials match, setting user data");
+      // Set user data from demo users
+      const userData = demoUsers[selectedRole as keyof typeof demoUsers];
+      console.log("Demo user data:", userData);
+      setUser(userData);
+      
+      // Navigate to the appropriate dashboard
+      const role = roles.find(r => r.id === selectedRole);
+      if (role) {
+        console.log("Navigating to dashboard:", role.route);
+        navigate(role.route);
+      } else {
+        console.error("Role not found for:", selectedRole);
+        setError("Navigation error: Role configuration not found");
+      }
     } else {
+      console.log("Credentials don't match. Expected:", roleCredentials, "Got:", { email, password });
       setError("Invalid email or password for the selected role");
     }
+  };
+
+  const handleRegister = () => {
+    // Navigate to the appropriate signup page based on selected role
+    navigate(`/${selectedRole}-signup`);
   };
 
   return (
@@ -123,6 +191,52 @@ const Login = () => {
             </Tabs>
 
             <div className="space-y-4">
+              {/* Quick test buttons for debugging */}
+              <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+                <p className="text-sm text-blue-700 mb-2">Quick Login Test:</p>
+                <div className="flex gap-2 flex-wrap">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      setSelectedRole("distributor");
+                      setEmail("distributor@gmail.com");
+                      setPassword("distributor123");
+                    }}
+                  >
+                    Fill Distributor
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      setSelectedRole("farmer");
+                      setEmail("farmer@gmail.com");
+                      setPassword("farmer123");
+                    }}
+                  >
+                    Fill Farmer
+                  </Button>
+                </div>
+                <p className="text-sm text-gray-600 mt-2">Direct Navigation Test:</p>
+                <div className="flex gap-2 flex-wrap mt-1">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleDirectNavigation("distributor")}
+                  >
+                    Go to Distributor
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleDirectNavigation("farmer")}
+                  >
+                    Go to Farmer
+                  </Button>
+                </div>
+              </div>
+              
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -162,7 +276,10 @@ const Login = () => {
             <div className="mt-6 text-center">
               <p className="text-sm text-muted-foreground">
                 Don't have an account?{" "}
-                <button className="text-primary hover:underline">
+                <button 
+                  className="text-primary hover:underline cursor-pointer"
+                  onClick={handleRegister}
+                >
                   Register here
                 </button>
               </p>

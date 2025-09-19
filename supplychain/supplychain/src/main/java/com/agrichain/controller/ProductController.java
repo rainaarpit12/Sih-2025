@@ -148,12 +148,6 @@ public class ProductController {
                      .orElse(ResponseEntity.notFound().build());
     }
     
-    // Debug endpoint to check all blockchain records
-    @GetMapping("/debug/records")
-    public ResponseEntity<Iterable<BlockchainRecord>> getAllBlockchainRecords() {
-        return ResponseEntity.ok(blockchainRecordRepository.findAll());
-    }
-    
     // Debug endpoint to check all products
     @GetMapping("/debug/products")
     public ResponseEntity<Iterable<Product>> getAllProducts() {

@@ -1,5 +1,12 @@
 {
   "name": "hardhat-example",
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy:mumbai": "hardhat run scripts/deploy-ProductRegistry.ts --network mumbai",
+    "deploy:polygon": "hardhat run scripts/deploy-ProductRegistry.ts --network polygon",
+    "verify:mumbai": "hardhat verify --network mumbai",
+    "verify:polygon": "hardhat verify --network polygon"
+  },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^3.0.0",
     "@nomicfoundation/hardhat-verify": "^1.1.1",
@@ -9,6 +16,7 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.9.6"
+    "@openzeppelin/contracts": "^4.9.6",
+    "dotenv": "^16.6.1"
   }
 }

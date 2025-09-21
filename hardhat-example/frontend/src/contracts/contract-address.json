@@ -1,3 +1,7 @@
 {
-  "ProductRegistry": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+  "contractAddress": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+  "network": "localhost",
+  "chainId": 31337,
+  "deployedAt": "2025-09-20T13:53:19.060Z",
+  "txHash": "0x8ed75728b8c7203976065f50c87aec988c97563b431517c7f8dd922f6c065b40"
 }

@@ -76,7 +76,7 @@ const CustomerDashboard = () => {
 
     try {
       // Replace with your API
-      const response = await fetch(`http://localhost:8086/api/retailer/product-details/${encodeURIComponent(encryptedCode)}`);
+      const response = await fetch(`http://localhost:8081/api/retailer/product-details/${encodeURIComponent(encryptedCode)}`);
       const data: VerificationResponse = await response.json();
 
       if (response.ok && data.success && data.verified) {

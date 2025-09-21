@@ -23,19 +23,29 @@ interface Product {
   description: string;
 }
 
-interface ScannedProductData {
-  success: boolean;
-  product: Product;
-  verified: boolean;
-  error?: string;
-}
-
 interface RetailerData {
   retailerName: string;
   storageConditions: string;
   retailPrice: string;
   retailerLocation: string;
   dateOfArrival: string;
+}
+
+interface DistributorData {
+  distributorName: string;
+  distributorLocation: string;
+  transportConditions: string;
+  distributorPrice: string;
+  distributionDate: string;
+}
+
+interface ScannedProductData {
+  success: boolean;
+  product: Product;
+  retailerInfo?: RetailerData;
+  distributorInfo?: DistributorData;
+  verified: boolean;
+  error?: string;
 }
 
 const RetailerDashboard = () => {
@@ -146,7 +156,7 @@ const RetailerDashboard = () => {
       console.log("Processing QR code:", qrContent);
       
       // Send the encrypted content directly to the backend
-      const response = await fetch(`http://localhost:8086/api/retailer/product-details/${encodeURIComponent(qrContent)}`);
+      const response = await fetch(`http://localhost:8081/api/retailer/product-details/${encodeURIComponent(qrContent)}`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -173,7 +183,7 @@ const RetailerDashboard = () => {
       console.error("Error processing QR:", error);
       toast({
         title: "Error",
-        description: "Failed to process product. Please check if the backend is running on port 8086.",
+        description: "Failed to process product. Please check if the backend is running on port 8081.",
         variant: "destructive"
       });
     } finally {
@@ -211,7 +221,7 @@ const RetailerDashboard = () => {
     setIsUpdating(true);
     try {
       // Update retailer info in backend
-      const response = await fetch(`http://localhost:8086/api/retailer/update-info/${scannedProduct.product.productId}`, {
+      const response = await fetch(`http://localhost:8081/api/retailer/update-info/${scannedProduct.product.productId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -425,6 +435,56 @@ const RetailerDashboard = () => {
                       <div className="col-span-2">
                         <Label htmlFor="description">Description</Label>
                         <Input id="description" value={scannedProduct.product.description} readOnly />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* Distributor Information Card */}
+            {scannedProduct && scannedProduct.success && scannedProduct.distributorInfo && (
+              <div className="transition-all duration-500 delay-350">
+                <Card className="bg-white border-border shadow-lg">
+                  <CardHeader className="bg-blue-50">
+                    <CardTitle className="flex items-center gap-2">
+                      <Users className="h-5 w-5" />
+                      Distributor Information
+                    </CardTitle>
+                    <CardDescription>
+                      Distribution chain information from the supply chain
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="distributorName">Distributor Name</Label>
+                        <Input id="distributorName" value={scannedProduct.distributorInfo.distributorName} readOnly />
+                      </div>
+                      <div>
+                        <Label htmlFor="distributorLocation">
+                          <MapPin className="h-4 w-4 inline mr-1" />
+                          Distributor Location
+                        </Label>
+                        <Input id="distributorLocation" value={scannedProduct.distributorInfo.distributorLocation} readOnly />
+                      </div>
+                      <div>
+                        <Label htmlFor="transportConditions">Transport Conditions</Label>
+                        <Input id="transportConditions" value={scannedProduct.distributorInfo.transportConditions} readOnly />
+                      </div>
+                      <div>
+                        <Label htmlFor="distributorPrice">
+                          <DollarSign className="h-4 w-4 inline mr-1" />
+                          Distribution Price
+                        </Label>
+                        <Input id="distributorPrice" value={`₹${scannedProduct.distributorInfo.distributorPrice}`} readOnly />
+                      </div>
+                      <div className="col-span-2">
+                        <Label htmlFor="distributionDate">
+                          <Calendar className="h-4 w-4 inline mr-1" />
+                          Distribution Date
+                        </Label>
+                        <Input id="distributionDate" value={scannedProduct.distributorInfo.distributionDate} readOnly />
                       </div>
                     </div>
                   </CardContent>

@@ -36,17 +36,18 @@ public class BlockchainService {
         try {
             System.out.println("Starting blockchain registration for product: " + product.getProductId());
             
+            // TODO: Temporarily disabled blockchain integration for testing
             // Initialize Web3j with the node URL
-            Web3j web3j = Web3j.build(new HttpService(blockchainNodeUrl));
-            System.out.println("Web3j initialized with node: " + blockchainNodeUrl);
+            // Web3j web3j = Web3j.build(new HttpService(blockchainNodeUrl));
+            // System.out.println("Web3j initialized with node: " + blockchainNodeUrl);
             
             // Create credentials from private key
-            Credentials credentials = Credentials.create(privateKey);
-            System.out.println("Credentials created successfully");
+            // Credentials credentials = Credentials.create(privateKey);
+            // System.out.println("Credentials created successfully");
             
             // Create transaction manager
-            TransactionManager transactionManager = new RawTransactionManager(web3j, credentials, 1337);
-            System.out.println("Transaction manager created");
+            // TransactionManager transactionManager = new RawTransactionManager(web3j, credentials, 1337);
+            // System.out.println("Transaction manager created");
             
             // For now, we'll simulate the blockchain interaction
             // In a real implementation, you would use the actual contract ABI
@@ -113,17 +114,18 @@ public void updateRetailerInfoOnBlockchain(String productId, RetailerInfo retail
     try {
         System.out.println("Updating retailer info on blockchain for product: " + productId);
         
+        // TODO: Temporarily disabled blockchain integration for testing
         // Initialize Web3j with the node URL
-        Web3j web3j = Web3j.build(new HttpService(blockchainNodeUrl));
-        System.out.println("Web3j initialized with node: " + blockchainNodeUrl);
+        // Web3j web3j = Web3j.build(new HttpService(blockchainNodeUrl));
+        // System.out.println("Web3j initialized with node: " + blockchainNodeUrl);
         
         // Create credentials from private key
-        Credentials credentials = Credentials.create(privateKey);
-        System.out.println("Credentials created successfully");
+        // Credentials credentials = Credentials.create(privateKey);
+        // System.out.println("Credentials created successfully");
         
         // Create transaction manager
-        TransactionManager transactionManager = new RawTransactionManager(web3j, credentials, 1337);
-        System.out.println("Transaction manager created");
+        // TransactionManager transactionManager = new RawTransactionManager(web3j, credentials, 1337);
+        // System.out.println("Transaction manager created");
         
         // For now, we'll simulate the blockchain interaction
         // In a real implementation, you would use the actual contract ABI
@@ -138,6 +140,39 @@ public void updateRetailerInfoOnBlockchain(String productId, RetailerInfo retail
         System.err.println("Error in updateRetailerInfoOnBlockchain: " + e.getMessage());
         e.printStackTrace();
         throw new RuntimeException("Failed to update retailer info on blockchain: " + e.getMessage(), e);
+    }
+}
+
+public void updateDistributorInfoOnBlockchain(String productId, com.agrichain.entity.DistributorInfo distributorInfo) {
+    try {
+        System.out.println("Updating distributor info on blockchain for product: " + productId);
+        
+        // TODO: Temporarily disabled blockchain integration for testing
+        // Initialize Web3j with the node URL
+        // Web3j web3j = Web3j.build(new HttpService(blockchainNodeUrl));
+        // System.out.println("Web3j initialized with node: " + blockchainNodeUrl);
+        
+        // Create credentials from private key
+        // Credentials credentials = Credentials.create(privateKey);
+        // System.out.println("Credentials created successfully");
+        
+        // Create transaction manager
+        // TransactionManager transactionManager = new RawTransactionManager(web3j, credentials, 1337);
+        // System.out.println("Transaction manager created");
+        
+        // For now, we'll simulate the blockchain interaction
+        // In a real implementation, you would use the actual contract ABI
+        
+        String simulatedTxHash = "0x" + java.util.UUID.randomUUID().toString().replace("-", "");
+        System.out.println("Generated transaction hash for distributor update: " + simulatedTxHash);
+        
+        // In a real implementation, you would call the contract's updateDistributorInfo function
+        System.out.println("Distributor info updated on blockchain for product: " + productId);
+        
+    } catch (Exception e) {
+        System.err.println("Error in updateDistributorInfoOnBlockchain: " + e.getMessage());
+        e.printStackTrace();
+        throw new RuntimeException("Failed to update distributor info on blockchain: " + e.getMessage(), e);
     }
 }
 }

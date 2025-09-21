@@ -1,11 +1,10 @@
 package com.agrichain.controller;
 
 import com.agrichain.entity.Product;
-import com.agrichain.entity.RetailerInfo;
 import com.agrichain.entity.DistributorInfo;
 import com.agrichain.service.ProductService;
-import com.agrichain.service.RetailerService;
 import com.agrichain.service.DistributorService;
+import com.agrichain.service.BlockchainService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,70 +13,82 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/retailer")
+@RequestMapping("/api/distributor")
 @CrossOrigin(origins = "*")
-public class RetailerController {
+public class DistributorController {
     
     @Autowired
-    private RetailerService retailerService;
+    private DistributorService distributorService;
     
     @Autowired
     private ProductService productService;
     
     @Autowired
-    private DistributorService distributorService;
+    private BlockchainService blockchainService;
     
     @PostMapping("/update-info/{productId}")
-    public ResponseEntity<Map<String, Object>> updateRetailerInfo(
+    public ResponseEntity<Map<String, Object>> updateDistributorInfo(
             @PathVariable String productId,
-            @RequestBody RetailerInfo retailerInfo) {
+            @RequestBody DistributorInfo distributorInfo) {
         try {
-            System.out.println("Received retailer info update for product: " + productId);
+            System.out.println("Received distributor info update for product: " + productId);
             
-            RetailerInfo updatedInfo = retailerService.updateRetailerInfo(productId, retailerInfo);
+            // Update distributor info in database
+            DistributorInfo updatedInfo = distributorService.updateDistributorInfo(productId, distributorInfo);
+            System.out.println("Distributor info updated in database");
+            
+            // Update distributor info on blockchain
+            try {
+                blockchainService.updateDistributorInfoOnBlockchain(productId, updatedInfo);
+                System.out.println("Distributor info updated on blockchain");
+            } catch (Exception blockchainError) {
+                System.err.println("Warning: Failed to update blockchain, but database update succeeded: " + blockchainError.getMessage());
+                // Continue execution - blockchain update failure shouldn't break the flow
+            }
             
             Map<String, Object> response = new HashMap<>();
-            response.put("retailerInfo", updatedInfo);
-            response.put("message", "Retailer information updated successfully");
+            response.put("distributorInfo", updatedInfo);
+            response.put("message", "Distributor information updated successfully");
+            response.put("blockchainUpdated", true);
             
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
-            System.err.println("Error in updateRetailerInfo: " + e.getMessage());
+            System.err.println("Error in updateDistributorInfo: " + e.getMessage());
             e.printStackTrace();
             Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Failed to update retailer info: " + e.getMessage());
+            errorResponse.put("error", "Failed to update distributor info: " + e.getMessage());
             return ResponseEntity.badRequest().body(errorResponse);
         }
     }
     
     @GetMapping("/info/{productId}")
-    public ResponseEntity<Map<String, Object>> getRetailerInfo(@PathVariable String productId) {
+    public ResponseEntity<Map<String, Object>> getDistributorInfo(@PathVariable String productId) {
         try {
-            System.out.println("Fetching retailer info for product: " + productId);
+            System.out.println("Fetching distributor info for product: " + productId);
             
-            RetailerInfo retailerInfo = retailerService.getRetailerInfo(productId);
+            DistributorInfo distributorInfo = distributorService.getDistributorInfo(productId);
             
             Map<String, Object> response = new HashMap<>();
-            response.put("retailerInfo", retailerInfo);
+            response.put("distributorInfo", distributorInfo);
             response.put("success", true);
             
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
-            System.err.println("Error in getRetailerInfo: " + e.getMessage());
+            System.err.println("Error in getDistributorInfo: " + e.getMessage());
             e.printStackTrace();
             Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Failed to get retailer info: " + e.getMessage());
+            errorResponse.put("error", "Failed to get distributor info: " + e.getMessage());
             errorResponse.put("success", false);
             return ResponseEntity.badRequest().body(errorResponse);
         }
     }
     
     @GetMapping("/product-details/{encryptedCode}")
-    public ResponseEntity<Map<String, Object>> getProductWithRetailerInfo(@PathVariable String encryptedCode) {
+    public ResponseEntity<Map<String, Object>> getProductWithDistributorInfo(@PathVariable String encryptedCode) {
         try {
-            System.out.println("Fetching product with complete supply chain info for encrypted code: " + encryptedCode);
+            System.out.println("Fetching product with distributor info for encrypted code: " + encryptedCode);
             
             // First verify the product using ProductService
             Product product = productService.verifyProductByEncryptedCode(encryptedCode);
@@ -90,38 +101,25 @@ public class RetailerController {
                 return ResponseEntity.status(404).body(errorResponse);
             }
             
-            // Build complete supply chain response
+            // Try to get distributor info
             Map<String, Object> response = new HashMap<>();
             response.put("product", product);
             response.put("success", true);
             response.put("verified", true);
             
-            // Try to get distributor info
             try {
                 DistributorInfo distributorInfo = distributorService.getDistributorInfo(product.getProductId());
                 response.put("distributorInfo", distributorInfo);
                 response.put("hasDistributorInfo", true);
-                System.out.println("Retrieved distributor info for product: " + product.getProductId());
             } catch (Exception e) {
                 System.out.println("No distributor info found for product: " + product.getProductId());
                 response.put("hasDistributorInfo", false);
             }
             
-            // Try to get retailer info
-            try {
-                RetailerInfo retailerInfo = retailerService.getRetailerInfo(product.getProductId());
-                response.put("retailerInfo", retailerInfo);
-                response.put("hasRetailerInfo", true);
-                System.out.println("Retrieved retailer info for product: " + product.getProductId());
-            } catch (Exception e) {
-                System.out.println("No retailer info found for product: " + product.getProductId());
-                response.put("hasRetailerInfo", false);
-            }
-            
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
-            System.err.println("Error in getProductWithRetailerInfo: " + e.getMessage());
+            System.err.println("Error in getProductWithDistributorInfo: " + e.getMessage());
             e.printStackTrace();
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("error", "Failed to get product details: " + e.getMessage());

@@ -265,9 +265,10 @@ const Login = () => {
               )}
               
               <Button 
-                variant={selectedRole === "farmer" ? "farmer" : selectedRole === "retailer" ? "retail" : "scan"}
+                variant={selectedRole === "farmer" ? "farmer" : selectedRole === "retailer" ? "retail" : selectedRole === "distributor" ? "default" : "scan"}
                 className="w-full"
                 onClick={handleLogin}
+                type="button"
               >
                 Sign In as {roles.find(r => r.id === selectedRole)?.name}
               </Button>

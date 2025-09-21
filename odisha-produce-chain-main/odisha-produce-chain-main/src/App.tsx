@@ -15,6 +15,7 @@ import DistributorSignup from "./pages/DistributorSignup";
 import RetailerSignup from "./pages/RetailerSignup";
 import CustomerSignup from "./pages/CustomerSignup";
 import NotFound from "./pages/NotFound";
+import AccountSelector from "./components/AccountSelector";
 
 import TranslateWidget from "./components/ui/TranslateWidget";
 import Chatbot from "./components/ui/Chatbot";
@@ -28,6 +29,11 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          {/* Account Selector - temporarily hidden to avoid UI interference */}
+          {/* <div className="fixed top-4 right-4 z-50 max-w-sm">
+            <AccountSelector />
+          </div> */}
+          
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />

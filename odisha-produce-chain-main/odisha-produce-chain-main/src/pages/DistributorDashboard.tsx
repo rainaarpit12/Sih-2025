@@ -189,7 +189,7 @@ const DistributorDashboard = () => {
       }
       
       // If local parsing failed, try backend
-      const response = await fetch(`http://localhost:8086/api/distributor/product-details/${encodeURIComponent(qrContent)}`, {
+      const response = await fetch(`http://localhost:8081/api/distributor/product-details/${encodeURIComponent(qrContent)}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -306,7 +306,7 @@ const DistributorDashboard = () => {
     
     try {
       // Try to update via backend first
-      const response = await fetch(`http://localhost:8086/api/distributor/update-info/${scannedProduct.product.productId}`, {
+      const response = await fetch(`http://localhost:8081/api/distributor/update-info/${scannedProduct.product.productId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

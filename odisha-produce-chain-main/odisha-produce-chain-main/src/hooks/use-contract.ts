@@ -36,16 +36,485 @@ const POLYGON_NETWORKS = {
 
 // Contract addresses for different networks
 const CONTRACT_ADDRESSES = {
-  mumbai: '0x5FbDB2315678afecb367f032d93F642f64180aa3', // Will be updated after deployment
-  mainnet: '0x5FbDB2315678afecb367f032d93F642f64180aa3', // Will be updated after deployment
-  localhost: '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+  mumbai: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512', // Will be updated after deployment
+  mainnet: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512', // Will be updated after deployment
+  localhost: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512' // Updated with deployed contract
 };
 
-// Minimal ABI for the functions we need
+// Complete ABI for the ProductRegistry contract
 const PRODUCT_REGISTRY_ABI = [
-  "function updateRetailerInfo(uint256 _id, string memory _retailerName, string memory _storageConditions, uint256 _retailPrice, string memory _retailerLocation, string memory _dateOfArrival) public",
-  "function getProduct(uint256 _id) public view returns (tuple(uint256 id, string name, string category, string dateOfManufacture, string timeOfManufacture, string place, string qualityRating, uint256 priceForFarmer, string description, address farmer, bool isAvailable, uint256 createdAt, uint256 updatedAt))",
-  "function getRetailerInfo(uint256 _id) public view returns (tuple(string retailerName, string storageConditions, uint256 retailPrice, string retailerLocation, string dateOfArrival, address retailerAddress, uint256 updatedAt))"
+  {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "farmerAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "contactInfo",
+        "type": "string"
+      }
+    ],
+    "name": "FarmerRegistered",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "farmer",
+        "type": "address"
+      }
+    ],
+    "name": "ProductCreated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_category",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_dateOfManufacture",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_timeOfManufacture",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_place",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_qualityRating",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_priceForFarmer",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_description",
+        "type": "string"
+      }
+    ],
+    "name": "createProduct",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_id",
+        "type": "uint256"
+      }
+    ],
+    "name": "getProduct",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "category",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "dateOfManufacture",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "timeOfManufacture",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "place",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "qualityRating",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "priceForFarmer",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "farmer",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "isAvailable",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "createdAt",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "updatedAt",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct ProductRegistry.Product",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_id",
+        "type": "uint256"
+      }
+    ],
+    "name": "getRetailerInfo",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "retailerName",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "storageConditions",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "retailPrice",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "retailerLocation",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "dateOfArrival",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "retailerAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "updatedAt",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct ProductRegistry.RetailerInfo",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "nextProductId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "products",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "category",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "dateOfManufacture",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "timeOfManufacture",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "place",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "qualityRating",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "priceForFarmer",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "description",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "farmer",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "isAvailable",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "createdAt",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "updatedAt",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_contactInfo",
+        "type": "string"
+      }
+    ],
+    "name": "registerFarmer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "retailerInfos",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "retailerName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "storageConditions",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "retailPrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "retailerLocation",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "dateOfArrival",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "retailerAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "updatedAt",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_retailerName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_storageConditions",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_retailPrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_retailerLocation",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_dateOfArrival",
+        "type": "string"
+      }
+    ],
+    "name": "updateRetailerInfo",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+];
+
+// Local test accounts from Hardhat node
+const LOCAL_TEST_ACCOUNTS = [
+  {
+    address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    privateKey: '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+    role: 'farmer'
+  },
+  {
+    address: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+    privateKey: '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
+    role: 'distributor'
+  },
+  {
+    address: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC',
+    privateKey: '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a',
+    role: 'retailer'
+  },
+  {
+    address: '0x90F79bf6EB2c4f870365E785982E1f101E93b906',
+    privateKey: '0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6',
+    role: 'customer'
+  }
 ];
 
 export const useContract = () => {
@@ -55,10 +524,12 @@ export const useContract = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [network, setNetwork] = useState<string>('');
   const [chainId, setChainId] = useState<number>(0);
+  const [selectedAccount, setSelectedAccount] = useState<number>(0);
+  const [useMetaMask, setUseMetaMask] = useState<boolean>(false);
 
   useEffect(() => {
     initializeContract();
-  }, []);
+  }, [selectedAccount, useMetaMask]);
 
   const getNetworkName = (chainId: number): string => {
     switch (chainId) {
@@ -103,7 +574,8 @@ export const useContract = () => {
 
   const initializeContract = async () => {
     try {
-      if (typeof window.ethereum !== 'undefined') {
+      if (useMetaMask && typeof window.ethereum !== 'undefined') {
+        // MetaMask mode (existing logic)
         const provider = new ethers.BrowserProvider(window.ethereum);
         
         // Get current network
@@ -158,6 +630,34 @@ export const useContract = () => {
         window.ethereum.on('chainChanged', () => {
           window.location.reload(); // Reload to reinitialize with new network
         });
+      } else {
+        // Local test account mode (no MetaMask)
+        console.log('🔧 Using local test accounts mode (no MetaMask required)');
+        
+        // Connect to local Hardhat node
+        const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545');
+        
+        // Set local network info
+        setChainId(31337);
+        setNetwork('localhost');
+        
+        // Use selected test account
+        const testAccount = LOCAL_TEST_ACCOUNTS[selectedAccount];
+        setAccount(testAccount.address);
+        setIsConnected(true);
+        
+        console.log(`👤 Using test account: ${testAccount.address} (${testAccount.role})`);
+        
+        // Create wallet from private key
+        const wallet = new ethers.Wallet(testAccount.privateKey, provider);
+        
+        // Get contract address for localhost
+        const contractAddress = getContractAddress('localhost');
+        console.log(`📄 Using contract address: ${contractAddress}`);
+        
+        // Create contract instance with wallet (can sign transactions)
+        const contractInstance = new ethers.Contract(contractAddress, PRODUCT_REGISTRY_ABI, wallet);
+        setContract(contractInstance);
       }
     } catch (error) {
       console.error('Error initializing contract:', error);
@@ -168,33 +668,40 @@ export const useContract = () => {
 
   const connectWallet = async () => {
     try {
-      if (typeof window.ethereum !== 'undefined') {
-        setIsLoading(true);
-        
-        // Request account access
-        const accounts = await window.ethereum.request({
-          method: 'eth_requestAccounts',
-        });
-        
-        if (accounts.length > 0) {
-          setAccount(accounts[0]);
-          setIsConnected(true);
+      if (useMetaMask) {
+        // MetaMask connection logic
+        if (typeof window.ethereum !== 'undefined') {
+          setIsLoading(true);
           
-          // Check if we're on a Polygon network, if not suggest switching
-          if (chainId !== 80001 && chainId !== 137) {
-            const shouldSwitch = window.confirm(
-              'You are not connected to Polygon network. Would you like to switch to Polygon Mumbai (testnet)?'
-            );
+          // Request account access
+          const accounts = await window.ethereum.request({
+            method: 'eth_requestAccounts',
+          });
+          
+          if (accounts.length > 0) {
+            setAccount(accounts[0]);
+            setIsConnected(true);
             
-            if (shouldSwitch) {
-              await switchToPolygon('mumbai');
+            // Check if we're on a Polygon network, if not suggest switching
+            if (chainId !== 80001 && chainId !== 137) {
+              const shouldSwitch = window.confirm(
+                'You are not connected to Polygon network. Would you like to switch to Polygon Mumbai (testnet)?'
+              );
+              
+              if (shouldSwitch) {
+                await switchToPolygon('mumbai');
+              }
             }
+            
+            await initializeContract();
           }
-          
-          await initializeContract();
+        } else {
+          throw new Error('MetaMask not installed');
         }
       } else {
-        throw new Error('MetaMask not installed');
+        // Local test account mode - already connected automatically
+        setIsConnected(true);
+        console.log('✅ Using local test account - no wallet connection needed');
       }
     } catch (error: any) {
       console.error('Error connecting wallet:', error);
@@ -202,6 +709,27 @@ export const useContract = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const switchAccount = (accountIndex: number) => {
+    if (accountIndex >= 0 && accountIndex < LOCAL_TEST_ACCOUNTS.length) {
+      setSelectedAccount(accountIndex);
+      console.log(`🔄 Switched to account: ${LOCAL_TEST_ACCOUNTS[accountIndex].address} (${LOCAL_TEST_ACCOUNTS[accountIndex].role})`);
+    }
+  };
+
+  const toggleMetaMaskMode = () => {
+    setUseMetaMask(!useMetaMask);
+    setIsConnected(false);
+    setAccount('');
+    console.log(`🔄 Switched to ${!useMetaMask ? 'MetaMask' : 'local test'} mode`);
+  };
+
+  const getCurrentAccountInfo = () => {
+    if (!useMetaMask && selectedAccount < LOCAL_TEST_ACCOUNTS.length) {
+      return LOCAL_TEST_ACCOUNTS[selectedAccount];
+    }
+    return null;
   };
 
   return {
@@ -213,6 +741,13 @@ export const useContract = () => {
     chainId,
     connectWallet,
     switchToPolygon,
-    isPolygonNetwork: chainId === 80001 || chainId === 137
+    isPolygonNetwork: chainId === 80001 || chainId === 137,
+    // New functions for local test mode
+    useMetaMask,
+    toggleMetaMaskMode,
+    switchAccount,
+    selectedAccount,
+    localTestAccounts: LOCAL_TEST_ACCOUNTS,
+    getCurrentAccountInfo
   };
 };

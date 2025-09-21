@@ -493,7 +493,7 @@ const FarmerDashboard = () => {
     try {
       console.log("Sending product data:", productData);
       
-      const response = await fetch('http://localhost:8086/api/products/register', {
+      const response = await fetch('http://localhost:8081/api/products/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
